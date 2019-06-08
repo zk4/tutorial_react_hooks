@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 
@@ -57,6 +57,12 @@ function App() {
       isCompleted: false
     }
   ]);
+  useEffect(()=>{
+    console.log("hello,useEffect")
+    return ()=>{
+      console.log("out,useEffect")
+    }
+  })
 
   const addTodo = text => {
     const NewTodos = [...todos, { text }];
