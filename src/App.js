@@ -57,12 +57,12 @@ function App() {
       isCompleted: false
     }
   ]);
-  useEffect(()=>{
-    console.log("hello,useEffect")
-    return ()=>{
-      console.log("out,useEffect")
-    }
-  })
+  useEffect(() => {
+    console.log("hello,useEffect");
+    return () => {
+      console.log("out,useEffect");
+    };
+  });
 
   const addTodo = text => {
     const NewTodos = [...todos, { text }];
