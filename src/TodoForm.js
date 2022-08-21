@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 export default function TodoForm({ addTodo }) {
+  console.log("todoform rerender")
   const [value, setValue] = useState("");
 
   const handleSubmit = e => {

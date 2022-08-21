@@ -1,6 +1,7 @@
 
 import React from "react";
 export default function Todo({ todo, index, completeTodo, deleteTodo }) {
+  console.log("todo rerender")
   return (
     <div
       className="todo"
