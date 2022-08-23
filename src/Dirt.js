@@ -1,173 +1,226 @@
-import React,{useState,useEffect}  from 'react';
+import React, {useState, useEffect} from 'react';
 import axios from 'axios';
-import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
-import { ProColumns, ProTable, TableDropdown } from '@ant-design/pro-components';
-import '@ant-design/pro-components/dist/components.css';
-import { Button, Tooltip } from 'antd';
+import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
+import {ActionType, ProColumns} from '@ant-design/pro-components';
+import {ProTable, TableDropdown} from '@ant-design/pro-components';
+import {Button, Dropdown, Menu, Space, Tag} from 'antd';
+import {useRef} from 'react';
+import request from 'umi-request';
 
-const valueEnum = {
-  0: 'close',
-  1: 'running',
-  2: 'online',
-  3: 'error',
-};
+// type GithubIssueItem = {
+//   url: string;
+//   id: number;
+//   number: number;
+//   title: string;
+//   labels: {
+//     name: string;
+//     color: string;
+//   }[];
+//   state: string;
+//   comments: number;
+//   created_at: string;
+//   updated_at: string;
+//   closed_at?: string;
+// };
 
-
-const creators = ['付小小', '曲丽丽', '林东东', '陈帅帅', '兼某某'];
-
-let tableListDataSource  = []
-for (let i = 0; i < 150; i += 1) {
-  tableListDataSource.push({
-    key: i,
-    name: 'AppName',
-    containers: Math.floor(Math.random() * 20),
-    creator: creators[Math.floor(Math.random() * creators.length)],
-    status: valueEnum[Math.floor(Math.random() * 10) % 4],
-    createdTime: Date.now() - Math.floor(Math.random() * 100000),
-    memo: i % 2 === 1 ? '很长很长很长很长很长很长很长的文字要展示但是要留下尾巴' : '简短备注文案',
-  });
-}
-
-// const cs = [
-//   {
-//     title: '应用名称',
-//     width: 80,
-//     dataIndex: 'name',
-//     render: (_) => <a>{_}</a>,
-//   },
-//   {
-//     title: '容器数量',
-//     dataIndex: 'containers',
-//     align: 'right',
-//     sorter: (a, b) => a.containers - b.containers,
-//   },
-//   {
-//     title: '状态',
-//     width: 80,
-//     dataIndex: 'status',
-//     initialValue: 'all',
-//     valueEnum: {
-//       all: { text: '全部', status: 'Default' },
-//       close: { text: '关闭', status: 'Default' },
-//       running: { text: '运行中', status: 'Processing' },
-//       online: { text: '已上线', status: 'Success' },
-//       error: { text: '异常', status: 'Error' },
-//     },
-//   },
-//   {
-//     title: '创建者',
-//     width: 80,
-//     dataIndex: 'creator',
-//     valueEnum: {
-//       all: { text: '全部' },
-//       付小小: { text: '付小小' },
-//       曲丽丽: { text: '曲丽丽' },
-//       林东东: { text: '林东东' },
-//       陈帅帅: { text: '陈帅帅' },
-//       兼某某: { text: '兼某某' },
-//     },
-//   },
-//   {
-//     title: (
-//       <>
-//         创建时间
-//         <Tooltip placement="top" title="这是一段描述">
-//           <QuestionCircleOutlined style={{ marginLeft: 4 }} />
-//         </Tooltip>
-//       </>
-//     ),
-//     width: 140,
-//     key: 'since',
-//     dataIndex: 'createdTime',
-//     valueType: 'date',
-//     sorter: (a, b) => a.createdAt - b.createdAt,
-//   },
-//   {
-//     title: '备注',
-//     dataIndex: 'memo',
-//     ellipsis: true,
-//     copyable: true,
-//   },
-//   {
-//     title: '操作',
-//     width: 180,
-//     key: 'option',
-//     valueType: 'option',
-//     render: () => [
-//       <a key="link">链路</a>,
-//       <a key="link2">报警</a>,
-//       <a key="link3">监控</a>,
-//       <TableDropdown
-//         key="actionGroup"
-//         menus={[
-//           { key: 'copy', name: '复制' },
-//           { key: 'delete', name: '删除' },
-//         ]}
-//       />,
-//     ],
-//   },
-// ];
-
-export default function  Dirt(){
-
-  const [columns, setColumns] = useState([]);
-  const [datas, setDatas] = useState([]);
-  useEffect(()=>{
-      axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=Container')
-        .then(res => {
-          if (res.data.code == 0)
-          {
-            console.log(res.data)
-            setColumns(res.data.data)
+const columns /*: ProColumns<GithubIssueItem>[]*/ = [
+  {
+    dataIndex: 'index',
+    valueType: 'indexBorder',
+    width: 48,
+  },
+  {
+    title: '标题',
+    dataIndex: 'title',
+    copyable: true,
+    ellipsis: true,
+    tip: '标题过长会自动收缩',
+    formItemProps: {
+      rules: [
+        {
+          required: true,
+          message: '此项为必填项',
+        },
+      ],
+    },
+  },
+  {
+    disable: true,
+    title: '状态',
+    dataIndex: 'state',
+    filters: true,
+    onFilter: true,
+    ellipsis: true,
+    valueType: 'select',
+    valueEnum: {
+      all: {text: '超长'.repeat(50)},
+      open: {
+        text: '未解决',
+        status: 'Error',
+      },
+      closed: {
+        text: '已解决',
+        status: 'Success',
+        disabled: true,
+      },
+      processing: {
+        text: '解决中',
+        status: 'Processing',
+      },
+    },
+  },
+  {
+    disable: true,
+    title: '标签',
+    dataIndex: 'labels',
+    search: false,
+    renderFormItem: (_, {defaultRender}) => {
+      return defaultRender(_);
+    },
+    render: (_, record) => (
+      <Space>
+        {record.labels.map(({name, color}) => (
+          <Tag color={color} key={name}>
+            {name}
+          </Tag>
+        ))}
+      </Space>
+    ),
+  },
+  {
+    title: '创建时间',
+    key: 'showTime',
+    dataIndex: 'created_at',
+    valueType: 'dateTime',
+    sorter: true,
+    hideInSearch: true,
+  },
+  {
+    title: '创建时间',
+    dataIndex: 'created_at',
+    valueType: 'dateRange',
+    hideInTable: true,
+    search: {
+      transform: (value) => {
+        return {
+          startTime: value[0],
+          endTime: value[1],
+        };
+      },
+    },
+  },
+  {
+    title: '操作',
+    valueType: 'option',
+    key: 'option',
+    render: (text, record, _, action) => [
+      <a
+        key="editable"
+        onClick={() => {
+            if (action) {
+              let editable = action.startEditable;
+              if (editable) {
+                editable(record.id);
+              }
+            }
           }
-        })
-  },[])
+        }
+      >
+        编辑
+      </a>,
+      <a href={record.url} target="_blank" rel="noopener noreferrer" key="view">
+        查看
+      </a>,
+      <TableDropdown
+        key="actionGroup"
+        onSelect={() =>  action.reload()}
+        menus={[
+          {key: 'copy', name: '复制'},
+          {key: 'delete', name: '删除'},
+        ]}
+      />,
+    ],
+  },
+];
 
-  useEffect(()=>{
-      axios.get('http://127.0.0.1:8081/getDatas?tableName=Container')
-        .then(res => {
-          if (res.data.code == 0)
-          {
-            console.log(res.data)
-          if (res.data.code == 0)
-          {
-            console.log(res.data)
-            setDatas(res.data.data)
-          }
+const menu = (
+  <Menu
+    items={[
+      {
+        label: '1st item',
+        key: '1',
+      },
+      {
+        label: '2nd item',
+        key: '1',
+      },
+      {
+        label: '3rd item',
+        key: '1',
+      },
+    ]}
+  />
+);
 
-          }
-        })
-  },[])
+export default function Dirt() {
+  const actionRef = useRef();
   return (
-    columns && <ProTable
+    <ProTable
       columns={columns}
-      request={(params, sorter, filter) => {
-        // 表单搜索项会从 params 传入，传递给后端接口。
-        console.log(params, sorter, filter);
-        return Promise.resolve({
-          data: datas,
-          success: true,
+      actionRef={actionRef}
+      cardBordered
+      request={async (params = {}, sort, filter) => {
+        console.log(sort, filter);
+        return request('https://proapi.azurewebsites.net/github/issues', {
+          params,
         });
       }}
-      rowKey="key"
-      pagination={{
-        showQuickJumper: true,
+      editable={{
+        type: 'multiple',
       }}
+      columnsState={{
+        persistenceKey: 'pro-table-singe-demos',
+        persistenceType: 'localStorage',
+        onChange(value) {
+          console.log('value: ', value);
+        },
+      }}
+      rowKey="id"
       search={{
-        optionRender: false,
-        collapsed: false,
+        labelWidth: 'auto',
+      }}
+      options={{
+        setting: {
+          listsHeight: 400,
+        },
+      }}
+      form={{
+        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+        syncToUrl: (values, type) => {
+          if (type === 'get') {
+            return {
+              ...values,
+              created_at: [values.startTime, values.endTime],
+            };
+          }
+          return values;
+        },
+      }}
+      pagination={{
+        pageSize: 5,
+        onChange: (page) => console.log(page),
       }}
       dateFormatter="string"
-      headerTitle="表格标题"
+      headerTitle="高级表格"
       toolBarRender={() => [
-        <Button key="show">查看日志</Button>,
-        <Button key="out">
-          导出数据
-          <DownOutlined />
+        <Button key="button" icon={<PlusOutlined />} type="primary">
+          新建
         </Button>,
-        <Button type="primary" key="primary">
-          创建应用
-        </Button>,
+        <Dropdown key="menu" overlay={menu}>
+          <Button>
+            <EllipsisOutlined />
+          </Button>
+        </Dropdown>,
       ]}
     />
   );
