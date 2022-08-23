@@ -1,9 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import axios from 'axios';
 import {EllipsisOutlined, PlusOutlined} from '@ant-design/icons';
-import {ActionType, ProColumns} from '@ant-design/pro-components';
-import {ProTable, TableDropdown} from '@ant-design/pro-components';
-import {Button, Dropdown, Menu, Space, Tag} from 'antd';
+import {ProTable } from '@ant-design/pro-components';
+import {Button, Dropdown, Menu} from 'antd';
 import {useRef} from 'react';
 import request from 'umi-request';
 
@@ -164,16 +163,15 @@ const menu = (
 
 export default function Dirt() {
   const [columns, setColumns] = useState([]);
-  useEffect(()=>{
-      axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=GithubIssue')
-        .then(res => {
-          if (res.data.code == 0)
-          {
-            console.log(res.data)
-            setColumns(res.data.data)
-          }
-        })
-  },[])
+  useEffect(() => {
+    axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=GithubIssue')
+      .then(res => {
+        if (res.data.code === 0) {
+          console.log(res.data)
+          setColumns(res.data.data)
+        }
+      })
+  }, [])
   const actionRef = useRef();
   return (
     <ProTable
@@ -188,26 +186,24 @@ export default function Dirt() {
         delete params["current"];
 
         // 制作 JPA filters   
-        let paramsCpy = Object.assign({},params)
+        let paramsCpy = Object.assign({}, params)
         delete paramsCpy["pageNumber"];
         delete paramsCpy["pageSize"];
 
 
-    const filters =  Object.entries(paramsCpy)
-    .filter(([key,value])=>{return value!=null;})
-    .map(([key,value])=>{ return key+"=="+value;})
-    .join(";");
+        const filters = Object.entries(paramsCpy)
+          .filter(([key, value]) => {return value !== null && value.trim().length !== 0;})
+          .map(([key, value]) => {return key + "==" + value;})
+          .join(";");
 
-        console.log("paramsCpy",paramsCpy,"params",params,"sort",sort, "filters:",filters);
+        // console.log("paramsCpy",paramsCpy,"params",params,"sort",sort, "filters:",filters);
         // 只能用字符串拼，不然会转义
         // let myParams = "filter=url==%25http%25;number==1";
         let myParams = `filter=${filters}`;
 
         let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
-        console.log("url",url);
-        return request(url, {
-          params,
-        });
+        // console.log("url",url);
+        return request(url, {params, });
       }}
       editable={{
         type: 'multiple',
