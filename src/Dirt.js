@@ -1,123 +1,157 @@
-import { Switch, Table } from 'antd';
+import React,{useState,useEffect}  from 'react';
 import axios from 'axios';
-import React, { useState,useEffect,useLayoutEffect } from 'react';
-const cs = [
-  {
-    title: 'Full Name',
-    width: 100,
-    dataIndex: 'id',
-    key: 'id',
-    fixed: 'left',
-  },
-  {
-    title: 'Full Name',
-    width: 100,
-    dataIndex: 'name',
-    key: 'name',
-    fixed: 'left',
-  },
-  {
-    title: 'Age',
-    width: 100,
-    dataIndex: 'age',
-    key: 'age',
-    fixed: 'left',
-  },
-  {
-    title: 'Column 1',
-    dataIndex: 'address',
-    key: '1',
-    width: 150,
-  },
-  {
-    title: 'Column 2',
-    dataIndex: 'address',
-    key: '2',
-    width: 150,
-  },
-  {
-    title: 'Column 3',
-    dataIndex: 'address',
-    key: '3',
-    width: 150,
-  },
-  {
-    title: 'Column 4',
-    dataIndex: 'address',
-    key: '4',
-    width: 150,
-  },
-  {
-    title: 'Column 5',
-    dataIndex: 'address',
-    key: '5',
-    width: 150,
-  },
-  {
-    title: 'Column 6',
-    dataIndex: 'address',
-    key: '6',
-    width: 150,
-  },
-  {
-    title: 'Column 7',
-    dataIndex: 'address',
-    key: '7',
-    width: 150,
-  },
-  {
-    title: 'Column 8',
-    dataIndex: 'address',
-    key: '8',
-  },
-  {
-    title: 'Action',
-    key: 'operation',
-    fixed: 'right',
-    width: 100,
-    render: () => <a>action</a>,
-  },
-];
+import { DownOutlined, QuestionCircleOutlined } from '@ant-design/icons';
+import { ProColumns, ProTable, TableDropdown } from '@ant-design/pro-components';
+import '@ant-design/pro-components/dist/components.css';
+import { Button, Tooltip } from 'antd';
 
-const Dirt = () => {
-  const [fixedTop, setFixedTop] = useState(false);
-  const [columns, setColumns] = useState(cs);
-  const [d, setData] = useState(columns);
+const valueEnum = {
+  0: 'close',
+  1: 'running',
+  2: 'online',
+  3: 'error',
+};
 
+
+const creators = ['付小小', '曲丽丽', '林东东', '陈帅帅', '兼某某'];
+
+let tableListDataSource  = []
+for (let i = 0; i < 150; i += 1) {
+  tableListDataSource.push({
+    key: i,
+    name: 'AppName',
+    containers: Math.floor(Math.random() * 20),
+    creator: creators[Math.floor(Math.random() * creators.length)],
+    status: valueEnum[Math.floor(Math.random() * 10) % 4],
+    createdTime: Date.now() - Math.floor(Math.random() * 100000),
+    memo: i % 2 === 1 ? '很长很长很长很长很长很长很长的文字要展示但是要留下尾巴' : '简短备注文案',
+  });
+}
+
+// const cs = [
+//   {
+//     title: '应用名称',
+//     width: 80,
+//     dataIndex: 'name',
+//     render: (_) => <a>{_}</a>,
+//   },
+//   {
+//     title: '容器数量',
+//     dataIndex: 'containers',
+//     align: 'right',
+//     sorter: (a, b) => a.containers - b.containers,
+//   },
+//   {
+//     title: '状态',
+//     width: 80,
+//     dataIndex: 'status',
+//     initialValue: 'all',
+//     valueEnum: {
+//       all: { text: '全部', status: 'Default' },
+//       close: { text: '关闭', status: 'Default' },
+//       running: { text: '运行中', status: 'Processing' },
+//       online: { text: '已上线', status: 'Success' },
+//       error: { text: '异常', status: 'Error' },
+//     },
+//   },
+//   {
+//     title: '创建者',
+//     width: 80,
+//     dataIndex: 'creator',
+//     valueEnum: {
+//       all: { text: '全部' },
+//       付小小: { text: '付小小' },
+//       曲丽丽: { text: '曲丽丽' },
+//       林东东: { text: '林东东' },
+//       陈帅帅: { text: '陈帅帅' },
+//       兼某某: { text: '兼某某' },
+//     },
+//   },
+//   {
+//     title: (
+//       <>
+//         创建时间
+//         <Tooltip placement="top" title="这是一段描述">
+//           <QuestionCircleOutlined style={{ marginLeft: 4 }} />
+//         </Tooltip>
+//       </>
+//     ),
+//     width: 140,
+//     key: 'since',
+//     dataIndex: 'createdTime',
+//     valueType: 'date',
+//     sorter: (a, b) => a.createdAt - b.createdAt,
+//   },
+//   {
+//     title: '备注',
+//     dataIndex: 'memo',
+//     ellipsis: true,
+//     copyable: true,
+//   },
+//   {
+//     title: '操作',
+//     width: 180,
+//     key: 'option',
+//     valueType: 'option',
+//     render: () => [
+//       <a key="link">链路</a>,
+//       <a key="link2">报警</a>,
+//       <a key="link3">监控</a>,
+//       <TableDropdown
+//         key="actionGroup"
+//         menus={[
+//           { key: 'copy', name: '复制' },
+//           { key: 'delete', name: '删除' },
+//         ]}
+//       />,
+//     ],
+//   },
+// ];
+
+export default function  Dirt(){
+
+  const [columns, setColumns] = useState([]);
   useEffect(()=>{
-      axios.get('http://127.0.0.1:8081/getTableHeaders?pageId=dirt')
+      axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=Container')
         .then(res => {
           if (res.data.code == 0)
-          {
             console.log(res.data)
             setColumns(res.data.data)
           }
         })
   },[])
 
-  useLayoutEffect(()=>{
-    let page = {page: 0, size: 10}
-    let pageStr = new URLSearchParams(page).toString()
-    let s1 = ""
-    let inputValue = s1
-
-    axios.get(`http://127.0.0.1:8081/getLayoutPage?${pageStr}&filter=pageName==%25${s1}%25`)
-      .then(res => {
-        let datas = res.data.data.map(d => {return {...d, key: d.id}});
-        console.log(datas)
-        setData(datas);
-    });
-  },[])
   return (
-    <Table
+    columns && <ProTable
       columns={columns}
-      dataSource={d}
-      scroll={{
-        x: 1500,
-        y: 500,
+      request={(params, sorter, filter) => {
+        // 表单搜索项会从 params 传入，传递给后端接口。
+        console.log(params, sorter, filter);
+        return Promise.resolve({
+          data: tableListDataSource,
+          success: true,
+        });
       }}
+      rowKey="key"
+      pagination={{
+        showQuickJumper: true,
+      }}
+      search={{
+        optionRender: false,
+        collapsed: false,
+      }}
+      dateFormatter="string"
+      headerTitle="表格标题"
+      toolBarRender={() => [
+        <Button key="show">查看日志</Button>,
+        <Button key="out">
+          导出数据
+          <DownOutlined />
+        </Button>,
+        <Button type="primary" key="primary">
+          创建应用
+        </Button>,
+      ]}
     />
   );
 };
-
-export default Dirt;
