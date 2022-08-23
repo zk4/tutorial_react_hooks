@@ -111,6 +111,7 @@ for (let i = 0; i < 150; i += 1) {
 export default function  Dirt(){
 
   const [columns, setColumns] = useState([]);
+  const [datas, setDatas] = useState([]);
   useEffect(()=>{
       axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=Container')
         .then(res => {
@@ -122,6 +123,21 @@ export default function  Dirt(){
         })
   },[])
 
+  useEffect(()=>{
+      axios.get('http://127.0.0.1:8081/getDatas?tableName=Container')
+        .then(res => {
+          if (res.data.code == 0)
+          {
+            console.log(res.data)
+          if (res.data.code == 0)
+          {
+            console.log(res.data)
+            setDatas(res.data.data)
+          }
+
+          }
+        })
+  },[])
   return (
     columns && <ProTable
       columns={columns}
@@ -129,7 +145,7 @@ export default function  Dirt(){
         // 表单搜索项会从 params 传入，传递给后端接口。
         console.log(params, sorter, filter);
         return Promise.resolve({
-          data: tableListDataSource,
+          data: datas,
           success: true,
         });
       }}
