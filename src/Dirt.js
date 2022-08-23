@@ -84,17 +84,16 @@ const Dirt = () => {
   const [columns, setColumns] = useState(cs);
   const [d, setData] = useState(columns);
 
-  // useEffect(()=>{
-  //
-  //     axios.get('http://127.0.0.1:8081/getTableHeaders?pageId=dirt')
-  //       .then(res => {
-  //         if (res.data.code == 0)
-  //         {
-  //           console.log(res.data)
-  //           setColumns(res.data.data)
-  //         }
-  //       })
-  // },[])
+  useEffect(()=>{
+      axios.get('http://127.0.0.1:8081/getTableHeaders?pageId=dirt')
+        .then(res => {
+          if (res.data.code == 0)
+          {
+            console.log(res.data)
+            setColumns(res.data.data)
+          }
+        })
+  },[])
 
   useLayoutEffect(()=>{
     let page = {page: 0, size: 10}
@@ -108,7 +107,7 @@ const Dirt = () => {
         console.log(datas)
         setData(datas);
     });
-  },[d])
+  },[])
   return (
     <Table
       columns={columns}
