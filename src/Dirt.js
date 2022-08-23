@@ -115,6 +115,7 @@ export default function  Dirt(){
       axios.get('http://127.0.0.1:8081/getTableHeaders?tableName=Container')
         .then(res => {
           if (res.data.code == 0)
+          {
             console.log(res.data)
             setColumns(res.data.data)
           }
