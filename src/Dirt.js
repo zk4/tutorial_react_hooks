@@ -36,7 +36,7 @@ export default function Dirt(props) {
       .map(([key, value]) => {return key + "==" + value;})
       .join(";");
 
-    console.log(filters)
+
     // 只能用字符串拼，不然会转义
     let myParams = `filter=${filters}`;
 
@@ -45,16 +45,18 @@ export default function Dirt(props) {
   }
 
   const onCreate = async (values) => {
-    let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
-      ...values
-    }
-    )
-    if (res.data.code === 0) {
-      if (res.data) {
-        message.success('提交成功');
-        search();
+    try {
+      let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {...values})
+      if (res.data.code === 0) {
+        if (res.data) {
+          message.success('提交成功');
+          search();
+        }
+      } else {
+        message.error('提交失败');
       }
-    } else {
+    }catch(e){
+        message.error(' 网络失败,请查看 console');
     }
     return true;
   }
@@ -80,17 +82,16 @@ export default function Dirt(props) {
       onFinish={onCreate}
     >
       {
-        Object.entries(grouped).map(([i, cs]) => {
+        Object.entries(grouped).map(([_, cs]) => {
           return <ProForm.Group >
             {
-              cs.map(c =>
-                <ProFormText
-                  width={c.submitWidth}
-                  name={c.key}
-                  label={c.submitLabel}
-                  tooltip={c.submitTooltip}
-                  placeholder={c.submitPlaceholder}
-                />
+              cs.map(c => <ProFormText
+                width={c.submitWidth}
+                name={c.key}
+                label={c.submitLabel}
+                tooltip={c.submitTooltip}
+                placeholder={c.submitPlaceholder}
+              />
 
               )
             }
