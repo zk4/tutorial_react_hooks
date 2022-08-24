@@ -176,27 +176,43 @@ export default function Dirt(props) {
   const actionRef = useRef();
 
   const search = async (params = {}, sort, filter) => {
-        // 映射 current 到 pageNumber
-        params.pageNumber = params.current;
-        delete params["current"];
+    // 映射 current 到 pageNumber
+    params.pageNumber = params.current;
+    delete params["current"];
 
-        // 制作 JPA filters   
-        let paramsCpy = Object.assign({}, params)
-        delete paramsCpy["pageNumber"];
-        delete paramsCpy["pageSize"];
-        const filters = Object.entries(params)
-          .filter(([key, _]) => {return key !== 'pageNumber' && key !== 'pageSize'})
-          .filter(([_, value]) => {return value !== null && value.trim().length !== 0;})
-          .map(([key, value]) => {return key + "==" + value;})
-          .join(";");
+    // 制作 JPA filters   
+    let paramsCpy = Object.assign({}, params)
+    delete paramsCpy["pageNumber"];
+    delete paramsCpy["pageSize"];
+    const filters = Object.entries(params)
+      .filter(([key, _]) => {return key !== 'pageNumber' && key !== 'pageSize'})
+      .filter(([_, value]) => {return value !== null && value.trim().length !== 0;})
+      .map(([key, value]) => {return key + "==" + value;})
+      .join(";");
 
-        console.log(filters)
-        // 只能用字符串拼，不然会转义
-        let myParams = `filter=${filters}`;
+    console.log(filters)
+    // 只能用字符串拼，不然会转义
+    let myParams = `filter=${filters}`;
 
-        let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
-        return request(url, {params, });
+    let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
+    return request(url, {params, });
+  }
+
+  const onCreate = async (values) => {
+    let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
+      ...values
+    }
+    )
+    if (res.data.code === 0) {
+      if (res.data) {
+        // setColumns(res.data.data)
+        message.success('提交成功');
+        search();
       }
+    } else {
+    }
+    return true;
+  }
 
   const generateForm = () => {
     return <ModalForm title="创建" trigger={
@@ -205,42 +221,24 @@ export default function Dirt(props) {
       </Button>
     }
       autoFocusFirstInput
-      modalProps={{
-        onCancel: () => console.log('run'),
-      }}
+      modalProps={{onCancel: () => console.log('run'), }}
       submitTimeout={4000}
-
-      onFinish={async (values) => {
-        debugger
-        let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
-          ...values
-        }
-        )
-        if (res.data.code === 0) {
-          if (res.data) {
-            // setColumns(res.data.data)
-            message.success('提交成功');
-            search();
-          }
-        } else {
-        }
-        return true;
-      }}
+      onFinish={onCreate}
     >
       {
-        columns.map(c => {
-          return <ProForm.Group >
-            <ProFormText
-              width="md"
-              name={c.key}
-              label={c.submitLabel}
-              tooltip={c.submitTooltip}
-              placeholder={c.submitPlaceholder}
-            />
-
-          </ProForm.Group>
-
-        })}
+        columns
+          .filter(c => c.submitable)
+          .map(c => {
+            return <ProForm.Group >
+              <ProFormText
+                width="md"
+                name={c.key}
+                label={c.submitLabel}
+                tooltip={c.submitTooltip}
+                placeholder={c.submitPlaceholder}
+              />
+            </ProForm.Group>
+          })}
     </ModalForm>
   }
   return (
