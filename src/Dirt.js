@@ -4,6 +4,7 @@ import {PlusOutlined, } from '@ant-design/icons';
 import {ProTable, ModalForm, ProForm, ProFormText, } from '@ant-design/pro-components';
 import {Button, message} from 'antd';
 import request from 'umi-request';
+import DirtSchemeForm from './DirtSchemeForm'
 
 
 export default function Dirt(props) {
@@ -84,8 +85,9 @@ export default function Dirt(props) {
       submitTimeout={4000}
       onFinish={onCreate}
     >
+        <DirtSchemeForm cs={columns.filter(c=>c.submitType!=null).map(c=>c.submitType)} onSubmit={onCreate}/>
       {
-        Object.entries(grouped).map(([_, cs]) => {
+       false && Object.entries(grouped).map(([_, cs]) => {
           return <ProForm.Group >
             {
               cs.map(c => <ProFormText
