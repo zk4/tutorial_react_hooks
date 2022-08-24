@@ -9,19 +9,22 @@ import request from 'umi-request';
 export default function Dirt(props) {
   const tableName = props.tableName;
   const [columns, setColumns] = useState([]);
-  const refreshHeader = () => {
+
+  useEffect(() => {
     axios.get(`http://127.0.0.1:8081/getTableHeaders?tableName=${tableName}`)
       .then(res => {
         if (res.data.code === 0) {
           console.log(res.data)
           setColumns(res.data.data)
         }
-      })
-  }
-  useEffect(() => {refreshHeader();}, [])
+      });
+  }, [tableName]);
+
+  // 用来操作 ProTable
+  // https://procomponents.ant.design/components/table/#actionref-%E6%89%8B%E5%8A%A8%E8%A7%A6%E5%8F%91
   const actionRef = useRef();
 
-  const search = async (params = {}, sort, filter) => {
+  const searchPromise = async (params = {}, sort, filter) => {
     // 映射 current 到 pageNumber
     params.pageNumber = params.current;
     delete params["current"];
@@ -106,7 +109,7 @@ export default function Dirt(props) {
       columns={columns}
       actionRef={actionRef}
       cardBordered
-      request={search}
+      request={searchPromise}
       editable={{
         type: 'multiple',
       }}
