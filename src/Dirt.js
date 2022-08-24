@@ -142,25 +142,6 @@ import request from 'umi-request';
 //   },
 // ];
 
-const menu = (
-  <Menu
-    items={[
-      {
-        label: '1st item',
-        key: '1',
-      },
-      {
-        label: '2nd item',
-        key: '1',
-      },
-      {
-        label: '3rd item',
-        key: '1',
-      },
-    ]}
-  />
-);
-
 export default function Dirt() {
   const [columns, setColumns] = useState([]);
   useEffect(() => {
@@ -179,30 +160,28 @@ export default function Dirt() {
       actionRef={actionRef}
       cardBordered
       request={async (params = {}, sort, filter) => {
-        const tableName = 'Container';
+        const tableName = 'GithubIssue';
 
         // 映射 current 到 pageNumber
         params.pageNumber = params.current;
         delete params["current"];
 
         // 制作 JPA filters   
-        let paramsCpy = Object.assign({}, params)
-        delete paramsCpy["pageNumber"];
-        delete paramsCpy["pageSize"];
-
-
-        const filters = Object.entries(paramsCpy)
-          .filter(([key, value]) => {return value !== null && value.trim().length !== 0;})
+        // let paramsCpy = Object.assign({}, params)
+        // delete paramsCpy["pageNumber"];
+        // delete paramsCpy["pageSize"];
+        const filters = Object.entries(params)
+          .filter(([key, _]) => {return key!=='pageNumber' && key !=='pageSize'})
+          .filter(([_, value]) => {return value !== null && value.trim().length !== 0;})
           .map(([key, value]) => {return key + "==" + value;})
           .join(";");
 
-        // console.log("paramsCpy",paramsCpy,"params",params,"sort",sort, "filters:",filters);
+        console.log(filters)
         // 只能用字符串拼，不然会转义
         // let myParams = "filter=url==%25http%25;number==1";
         let myParams = `filter=${filters}`;
 
         let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
-        // console.log("url",url);
         return request(url, {params, });
       }}
       editable={{
@@ -230,6 +209,7 @@ export default function Dirt() {
           if (type === 'get') {
             return {
               ...values,
+              // closed_at:new Date(values.closed_at).toISOString()
               // 注了
               // created_at: [values.startTime, values.endTime],
             };
@@ -247,11 +227,6 @@ export default function Dirt() {
         <Button key="button" icon={<PlusOutlined />} type="primary">
           新建
         </Button>,
-        <Dropdown key="menu" overlay={menu}>
-          <Button>
-            <EllipsisOutlined />
-          </Button>
-        </Dropdown>,
       ]}
     />
   );
