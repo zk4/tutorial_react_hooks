@@ -153,7 +153,9 @@ const Dirt = () => {
       })
 
   };
-
+  const tailLayout = {
+    wrapperCol: {offset: 8, span: 16},
+  };
   return (
     columns && <Form
       name="validate_other"
@@ -200,12 +202,11 @@ const Dirt = () => {
         </Select>
       </Form.Item>
 
-      <Form.Item
-        wrapperCol={{
-          span: 12,
-          offset: 6,
-        }}
-      >
+      <Form.Item {...tailLayout} >
+        <Button type="normal" htmlType="reset" style={{marginRight: '8px'}}>
+          Reset
+        </Button>
+
         <Button type="primary" htmlType="submit">
           Search
         </Button>
