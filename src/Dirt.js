@@ -3,7 +3,6 @@ import axios from 'axios';
 import {PlusOutlined, } from '@ant-design/icons';
 import {ProTable, ModalForm, ProForm, ProFormText, } from '@ant-design/pro-components';
 import {Button, message} from 'antd';
-import request from 'umi-request';
 
 
 export default function Dirt(props) {
@@ -41,7 +40,22 @@ export default function Dirt(props) {
     let myParams = `filter=${filters}`;
 
     let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
-    return request(url, {params, });
+
+    // 要符合 ProTalbe 的数据格式
+    let o=await axios.get(url,{...params}); 
+    return new Promise(
+      (resolve,reject)=> {
+        if(o.data && o.data.code == 0)
+        {
+          resolve(o.data);
+        }
+        else
+        {
+          reject(o);
+        }
+
+      }
+    );
   }
 
   const onCreate = async (values) => {
