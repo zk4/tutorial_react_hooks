@@ -88,6 +88,11 @@ export default function Dirt(props) {
       </Form>
     );
   };
+
+  Array.prototype.insertAt=function(index,obj){    
+    this.splice(index,0,obj);    
+  }
+
   const generateAction = (headers, name, text, record, index) => {
     if (name == '编辑') {
 
@@ -97,18 +102,18 @@ export default function Dirt(props) {
         //  取出 submitType
         .map(c => c.submitType)
       // 并增加 id
-      formData.push({
-        "width": "md",
+      formData.insertAt(0,{
+        "width": "lg",
         "key": "id",
         "placeholder": "",
         "submitable": true,
         "valueType": "digit",
         "title": "id",
         "tooltip": "id",
+        "readonly":true,
         "valueEnum": null,
         "colProps": {
-          "xs": 24,
-          "md": 12
+          "md": 24
         },
         "initialValue": record.id
       });
