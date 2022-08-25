@@ -89,6 +89,46 @@ export default function Dirt(props) {
     );
   };
   const generateAction = (headers, name, text, record, index) => {
+    if (name == '编辑') {
+
+      let formData = headers
+        //  只剔除  actions
+        .filter(c => c["actions"] == null)
+        //  取出 submitType
+        .map(c => c.submitType)
+      // 并增加 id
+      formData.push({
+        "width": "md",
+        "key": "id",
+        "placeholder": "",
+        "submitable": true,
+        "valueType": "digit",
+        "title": "id",
+        "tooltip": "id",
+        "valueEnum": null,
+        "colProps": {
+          "xs": 24,
+          "md": 12
+        },
+        "initialValue": record.id
+      });
+      formData = formData.map(d => {
+        d.initialValue = record[d.key];
+        return d;
+      });
+      return <BetaSchemaForm
+        title={name}
+        trigger={<a> {name} </a>}
+        layoutType='ModalForm'
+        columns={formData}
+        autoFocusFirstInput
+        submitTimeout={4000}
+        rowProps={{gutter: [16, 16]}}
+        colProps={{span: 12, }}
+        grid={true}
+        onFinish={v => onCreate(v)} >
+      </BetaSchemaForm>
+    }
     if (name == '详情') {
       let formData = [...headers]
       formData = formData.map(d => {
@@ -123,8 +163,8 @@ export default function Dirt(props) {
           // /dirt/delete/{tableName}/{id}
           let res = await axios.post(`http://127.0.0.1:8081/dirt/delete/${tableName}/${record.id}`, {})
           if (res.data.code === 0) {
-              message.success('删除成功');
-              actionRef.current.reload();
+            message.success('删除成功');
+            actionRef.current.reload();
           } else {
             message.error('删除失败');
           }
