@@ -24,14 +24,14 @@ export default function Dirt(props) {
               c['valueType'] = 'option';
               c['fixed'] = 'right';
               c['width'] = 10;
-              c['render'] = (text,record,index) => c["actions"].map(a =>generateAction(a,text,record,index));
+              c['render'] = (text,record,index) => c["actions"].map(a =>generateAction(cs,a,text,record,index));
             }
             return c;
           });
           setColumns(cs)
         }
       });
-  }, [columns]);
+  }, []);
 
 
   const onCreate = async (values) => {
@@ -77,8 +77,8 @@ export default function Dirt(props) {
   }
 
 
-  const generateAction=(name,text,record,index)=>{
-    let formData = columns.filter(c => c.submitType != null).map(c => c.submitType)
+  const generateAction=(headers,name,text,record,index)=>{
+    let formData = [...headers]
     formData=formData.map(d=>{
       d.initialValue  = record[d.key];
       return d;
