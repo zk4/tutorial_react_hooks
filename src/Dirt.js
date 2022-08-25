@@ -1,10 +1,28 @@
-import React, {useState, useEffect, useRef} from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef
+} from 'react';
 import axios from 'axios';
-import {PlusOutlined, } from '@ant-design/icons';
-import {ProTable, ModalForm, ProForm, ProFormText, } from '@ant-design/pro-components';
-import {Button, message} from 'antd';
+import {
+  PlusOutlined,
+} from '@ant-design/icons';
+import {
+  ProTable,
+  ModalForm,
+  ProForm,
+  ProFormText,
+} from '@ant-design/pro-components';
+import {
+  Button,
+  message
+} from 'antd';
 import request from 'umi-request';
 import DirtSchemeForm from './DirtSchemeForm'
+import {
+  BetaSchemaForm,
+  ProFormSelect
+} from '@ant-design/pro-components';
 
 
 export default function Dirt(props) {
@@ -35,9 +53,15 @@ export default function Dirt(props) {
     delete paramsCpy["pageNumber"];
     delete paramsCpy["pageSize"];
     const filters = Object.entries(params)
-      .filter(([key, _]) => {return key !== 'pageNumber' && key !== 'pageSize'})
-      .filter(([_, value]) => {return value !== null && value.trim().length !== 0;})
-      .map(([key, value]) => {return key + "==" + value;})
+      .filter(([key, _]) => {
+        return key !== 'pageNumber' && key !== 'pageSize'
+      })
+      .filter(([_, value]) => {
+        return value !== null && value.trim().length !== 0;
+      })
+      .map(([key, value]) => {
+        return key + "==" + value;
+      })
       .join(";");
 
 
@@ -45,12 +69,16 @@ export default function Dirt(props) {
     let myParams = `filter=${filters}`;
 
     let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
-     return request(url, {params, });
+    return request(url, {
+      params,
+    });
   }
 
   const onCreate = async (values) => {
     try {
-      let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {...values})
+      let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
+        ...values
+      })
       if (res.data.code === 0) {
         if (res.data) {
           message.success('提交成功');
@@ -59,8 +87,8 @@ export default function Dirt(props) {
       } else {
         message.error('提交失败');
       }
-    }catch(e){
-        message.error(' 网络失败,请查看 console');
+    } catch (e) {
+      message.error(' 网络失败,请查看 console');
     }
     return true;
   }
@@ -75,85 +103,93 @@ export default function Dirt(props) {
       }, {})
     console.log("grouped", grouped)
 
-    return <ModalForm title="创建" trigger={
-      <Button type="primary">
-        <PlusOutlined /> 创建
-      </Button>
-    }
-      autoFocusFirstInput
-      modalProps={{onCancel: () => console.log('run'), }}
-      submitTimeout={4000}
-      onFinish={onCreate}
-    >
-        <DirtSchemeForm cs={columns.filter(c=>c.submitType!=null).map(c=>c.submitType)} onSubmit={onCreate}/>
-      {
-       false && Object.entries(grouped).map(([_, cs]) => {
-          return <ProForm.Group >
-            {
-              cs.map(c => <ProFormText
-                width={c.submitWidth}
-                name={c.key}
-                label={c.submitLabel}
-                tooltip={c.submitTooltip}
-                placeholder={c.submitPlaceholder}
-              />
+    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
+    return <BetaSchemaForm
+      title="创建"
+      trigger={
+        <Button type="primary">
+          <PlusOutlined /> 
+          创建 
+        </Button> 
+        }
+        layoutType = 'ModalForm'
+        columns = { submitTypes }
+        autoFocusFirstInput
+        modalProps = { { onCancel: () => console.log('run'), } }
+        submitTimeout = { 4000 }
+        rowProps = { { gutter: [16, 16], } }
+        colProps = { { span: 12, } }
+        grid = { true }
+        onFinish = { onCreate } >
 
-              )
+        </BetaSchemaForm>
+	}
+          return ( <
+            ProTable columns={
+              columns
             }
-          </ProForm.Group>
-
-        })
-      }
-    </ModalForm>
-  }
-  return (
-    <ProTable
-      columns={columns}
-      actionRef={actionRef}
-      cardBordered
-      request={searchPromise}
-      editable={{
-        type: 'multiple',
-      }}
-      columnsState={{
-        persistenceKey: 'pro-table-singe-demos',
-        persistenceType: 'localStorage',
-        onChange(value) {
-          console.log('value: ', value);
-        },
-      }}
-      rowKey="id"
-      search={{
-        labelWidth: 'auto',
-      }}
-      options={{
-        setting: {
-          listsHeight: 400,
-        },
-      }}
-      form={{
-        // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
-        syncToUrl: (values, type) => {
-          if (type === 'get') {
-            return {
-              ...values,
-              // closed_at:new Date(values.closed_at).toISOString()
-              // 注了
-              // created_at: [values.startTime, values.endTime],
-            };
-          }
-          return values;
-        },
-      }}
-      pagination={{
-        pageSize: 5,
-        onChange: (page) => console.log(page),
-      }}
-      dateFormatter="string"
-      headerTitle=""
-      toolBarRender={() => [
-        generateForm()
-      ]}
-    />
-  );
+            actionRef={
+              actionRef
+            }
+            cardBordered request={
+              searchPromise
+            }
+            editable={
+              {
+                type: 'multiple',
+              }
+            }
+            columnsState={
+              {
+                persistenceKey: 'pro-table-singe-demos',
+                persistenceType: 'localStorage',
+                onChange(value) {
+                  console.log('value: ', value);
+                },
+              }
+            }
+            rowKey="id"
+            search={
+              {
+                labelWidth: 'auto',
+              }
+            }
+            options={
+              {
+                setting: {
+                  listsHeight: 400,
+                },
+              }
+            }
+            form={
+              {
+                // 由于配置了 transform，提交的参与与定义的不同这里需要转化一下
+                syncToUrl: (values, type) => {
+                  if (type === 'get') {
+                    return {
+                      ...values,
+                      // closed_at:new Date(values.closed_at).toISOString()
+                      // 注了
+                      // created_at: [values.startTime, values.endTime],
+                    };
+                  }
+                  return values;
+                },
+              }
+            }
+            pagination={
+              {
+                pageSize: 5,
+                onChange: (page) => console.log(page),
+              }
+            }
+            dateFormatter="string"
+            headerTitle=""
+            toolBarRender={
+              () => [
+                generateForm()
+              ]
+            }
+          />
+          );
 };

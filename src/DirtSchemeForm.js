@@ -1,6 +1,6 @@
 import React from 'react';
 import {BetaSchemaForm, ProFormSelect} from '@ant-design/pro-components';
-import {Alert, DatePicker, Space} from 'antd';
+import {Button,Alert, DatePicker, Space} from 'antd';
 import moment from 'moment';
 import {useState} from 'react';
 
@@ -247,40 +247,9 @@ export default ({cs,onSubmit}) => {
   const [layoutType, setLayoutType] = useState('ModalForm');
   const [columns, setColumns] = useState(cs);
   return (
-    <div>
-      <Space
-        style={{
-          width: '100%',
-        }}
-        direction="vertical"
-      >
-        {/* <Alert
-          type="warning"
-          message="QueryFilter 和 lightFilter 暂不支持grid模式"
-          style={{
-            marginBottom: 24,
-          }}
-        /> */}
-        {/* <ProFormSelect
-          label="布局方式"
-          options={[
-            'Form',
-            'ModalForm',
-            'DrawerForm',
-            'LightFilter',
-            'QueryFilter',
-            'StepsForm',
-            'StepForm',
-            'Embed',
-          ]}
-          fieldProps={{
-            value: layoutType,
-            onChange: (e) => setLayoutType(e),
-          }}
-        /> */}
-      </Space>
+    
       <BetaSchemaForm
-        trigger={<a>点击我</a>}
+        trigger={<Button>点击我</Button>}
         layoutType={layoutType}
         steps={[
           {
@@ -300,6 +269,5 @@ export default ({cs,onSubmit}) => {
         }}
         columns={(  columns)}
       />
-    </div>
   );
 };
