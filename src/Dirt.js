@@ -12,30 +12,93 @@ import request from 'umi-request';
 
 export default function Dirt(props) {
   const tableName = props.tableName;
-  const [columns, setColumns] = useState([]);
-
+  let [columns, setColumns] = useState([]);
   useEffect(() => {
     axios.get(`http://127.0.0.1:8081/getTableHeaders?tableName=${tableName}`)
       .then(res => {
         if (res.data.code === 0) {
-          let cs =res.data.data;
-          console.log("cs",cs);
-          cs= cs.map(c=>{
-            if(c["actions"])
-            {
+          let cs = res.data.data;
+          cs = cs.map(c => {
+            if (c["actions"]) {
               c['key'] = 'option';
               c['valueType'] = 'option';
               c['fixed'] = 'right';
               c['width'] = 10;
-              c['render'] = () => c["actions"].map(a=> <a key="link">{a}</a>);
-                ;
+              c['render'] = (text,record,index) => c["actions"].map(a =>generateAction(a,text,record,index));
             }
             return c;
           });
           setColumns(cs)
         }
       });
-  }, [tableName]);
+  }, [columns]);
+
+
+  const onCreate = async (values) => {
+    console.log("onCreate", values)
+    try {
+      let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
+        ...values
+      })
+      if (res.data.code === 0) {
+        if (res.data) {
+          message.success('提交成功');
+          actionRef.current.reload();
+        }
+      } else {
+        message.error('提交失败');
+      }
+    } catch (e) {
+      message.error(' 网络失败,请查看 console');
+    }
+    return true;
+  }
+  const generateForm = () => {
+    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
+    return <BetaSchemaForm
+      title="创建"
+      trigger={
+        <Button type="primary">
+          <PlusOutlined />
+          创建
+        </Button>
+      }
+      layoutType='ModalForm'
+      columns={submitTypes}
+      autoFocusFirstInput
+      modalProps={{onCancel: () => console.log('run'), }}
+      submitTimeout={4000}
+      rowProps={{gutter: [16, 16], }}
+      colProps={{span: 12, }}
+      grid={true}
+      onFinish={v => onCreate(v)} >
+
+    </BetaSchemaForm>
+  }
+
+
+  const generateAction=(name,text,record,index)=>{
+    let formData = columns.filter(c => c.submitType != null).map(c => c.submitType)
+    formData=formData.map(d=>{
+      d.initialValue  = record[d.key];
+      return d;
+    });
+    return <BetaSchemaForm
+      title={name}
+      readonly={true}
+      trigger={<a> {name} </a>}
+      layoutType='ModalForm'
+      columns={formData}
+      autoFocusFirstInput
+      modalProps={{onCancel: () => console.log('run'), }}
+      submitTimeout={4000}
+      rowProps={{gutter: [16, 16]}}
+      colProps={{span: 12, }}
+      grid={true}
+      onFinish={v => onCreate(v)} >
+
+    </BetaSchemaForm>
+  }
 
   // 用来操作 ProTable
   // https://procomponents.ant.design/components/table/#actionref-%E6%89%8B%E5%8A%A8%E8%A7%A6%E5%8F%91
@@ -72,51 +135,8 @@ export default function Dirt(props) {
     });
   }
 
-  const onCreate = async (values) => {
-    console.log("onCreate", values)
-    try {
-      let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
-        ...values
-      })
-      if (res.data.code === 0) {
-        if (res.data) {
-          message.success('提交成功');
-          actionRef.current.reload();
-        }
-      } else {
-        message.error('提交失败');
-      }
-    } catch (e) {
-      message.error(' 网络失败,请查看 console');
-    }
-    return true;
-  }
-
-  const generateForm = () => {
-    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
-    console.log(submitTypes)
-    return <BetaSchemaForm
-      title="创建"
-      trigger={
-        <Button type="primary">
-          <PlusOutlined />
-          创建
-        </Button>
-      }
-      layoutType='ModalForm'
-      columns={submitTypes}
-      autoFocusFirstInput
-      modalProps={{onCancel: () => console.log('run'), }}
-      submitTimeout={4000}
-      rowProps={{gutter: [16, 16], }}
-      colProps={{span: 12, }}
-      grid={true}
-      onFinish={v => onCreate(v)} >
-
-    </BetaSchemaForm>
-  }
-  return (<ProTable
-    scroll={{ x: 1300 }}
+  return (columns && <ProTable
+    scroll={{x: 1300}}
     columns={columns}
     actionRef={actionRef}
     cardBordered request={

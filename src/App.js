@@ -5,7 +5,6 @@ import Dirt from './Dirt'
 function App() {
   return (
     <div className="app">
-      <Dirt tableName="GithubRepo"/>
       <Dirt tableName="GithubBug"/>
     </div>
   );
