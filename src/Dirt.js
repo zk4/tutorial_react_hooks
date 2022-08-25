@@ -101,7 +101,7 @@ export default function Dirt(props) {
         .filter(c => c["actions"] == null)
         //  取出 submitType
         .map(c => c.submitType)
-      // 并增加 id
+        // 增加 id  显示
       formData.insertAt(0,{
         "width": "lg",
         "key": "id",
@@ -203,7 +203,7 @@ export default function Dirt(props) {
         return value !== null && value.trim().length !== 0;
       })
       .map(([key, value]) => {
-        return key + "==" + value;
+        return key + "=="+encodeURIComponent("%"+value+"%");
       })
       .join(";");
 
