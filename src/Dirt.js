@@ -75,6 +75,7 @@ export default function Dirt(props) {
   }
 
   const onCreate = async (values) => {
+    console.log("onCreate",values)
     try {
       let res = await axios.post(`http://127.0.0.1:8081/dirt/create?tableName=${tableName}`, {
         ...values
@@ -94,16 +95,17 @@ export default function Dirt(props) {
   }
 
   const generateForm = () => {
-    let grouped = columns
-      .filter(c => c.submitable)
-      .reduce((a, c) => {
-        if (!a[c.submitFormGroupId]) a[c.submitFormGroupId] = []
-        a[c.submitFormGroupId].push(c)
-        return a;
-      }, {})
-    console.log("grouped", grouped)
+    // let grouped = columns
+    //   .filter(c => c.submitable)
+    //   .reduce((a, c) => {
+    //     if (!a[c.submitFormGroupId]) a[c.submitFormGroupId] = []
+    //     a[c.submitFormGroupId].push(c)
+    //     return a;
+    //   }, {})
+    // console.log("grouped", grouped)
 
     const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
+    console.log(submitTypes)
     return <BetaSchemaForm
       title="创建"
       trigger={
@@ -120,7 +122,7 @@ export default function Dirt(props) {
         rowProps = { { gutter: [16, 16], } }
         colProps = { { span: 12, } }
         grid = { true }
-        onFinish = { onCreate } >
+        onFinish = { v=>onCreate(v) } >
 
         </BetaSchemaForm>
 	}
