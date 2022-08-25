@@ -6,9 +6,10 @@ import React, {
 import axios from 'axios';
 import {PlusOutlined, } from '@ant-design/icons';
 import {ProTable, BetaSchemaForm, } from '@ant-design/pro-components';
-import {Button, message} from 'antd';
+import {Button, message, Form, Popconfirm} from 'antd';
 import request from 'umi-request';
 
+const EditableContext = React.createContext(null);
 
 export default function Dirt(props) {
   const tableName = props.tableName;
@@ -24,7 +25,7 @@ export default function Dirt(props) {
               c['valueType'] = 'option';
               c['fixed'] = 'right';
               c['width'] = 10;
-              c['render'] = (text,record,index) => c["actions"].map(a =>generateAction(cs,a,text,record,index));
+              c['render'] = (text, record, index) => c["actions"].map(a => generateAction(cs, a, text, record, index));
             }
             return c;
           });
@@ -77,27 +78,63 @@ export default function Dirt(props) {
   }
 
 
-  const generateAction=(headers,name,text,record,index)=>{
-    let formData = [...headers]
-    formData=formData.map(d=>{
-      d.initialValue  = record[d.key];
-      return d;
-    });
-    return <BetaSchemaForm
-      title={name}
-      readonly={true}
-      trigger={<a> {name} </a>}
-      layoutType='ModalForm'
-      columns={formData}
-      autoFocusFirstInput
-      modalProps={{onCancel: () => console.log('run'), }}
-      submitTimeout={4000}
-      rowProps={{gutter: [16, 16]}}
-      colProps={{span: 12, }}
-      grid={true}
-      onFinish={v => onCreate(v)} >
+  const EditableRow = ({index, ...props}) => {
+    const [form] = Form.useForm();
+    return (
+      <Form form={form} component={false}>
+        <EditableContext.Provider value={form}>
+          <tr {...props} />
+        </EditableContext.Provider>
+      </Form>
+    );
+  };
+  const generateAction = (headers, name, text, record, index) => {
+    if (name == '详情') {
+      let formData = [...headers]
+      formData = formData.map(d => {
+        d.initialValue = record[d.key];
+        return d;
+      });
+      return <BetaSchemaForm
+        title={name}
+        readonly={true}
+        trigger={<a> {name} </a>}
+        layoutType='ModalForm'
+        columns={formData}
+        autoFocusFirstInput
+        modalProps={{onCancel: () => console.log('run'), }}
+        submitTimeout={4000}
+        rowProps={{gutter: [16, 16]}}
+        colProps={{span: 12, }}
+        grid={true}
+        onFinish={v => onCreate(v)} >
 
-    </BetaSchemaForm>
+      </BetaSchemaForm>
+    }
+    if (name == '删除') {
+      let formData = [...headers]
+      formData = formData.map(d => {
+        d.initialValue = record[d.key];
+        return d;
+      });
+      return <Popconfirm title="确定删除?" onConfirm={async () => {
+        console.log(headers, name, text, record, index)
+        try {
+          // /dirt/delete/{tableName}/{id}
+          let res = await axios.post(`http://127.0.0.1:8081/dirt/delete/${tableName}/${record.id}`, {})
+          if (res.data.code === 0) {
+              message.success('删除成功');
+              actionRef.current.reload();
+          } else {
+            message.error('删除失败');
+          }
+        } catch (e) {
+          message.error(' 网络失败,请查看 console');
+        }
+      }}>
+        <a>{name}</a>
+      </Popconfirm>
+    }
   }
 
   // 用来操作 ProTable
