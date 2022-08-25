@@ -18,8 +18,21 @@ export default function Dirt(props) {
     axios.get(`http://127.0.0.1:8081/getTableHeaders?tableName=${tableName}`)
       .then(res => {
         if (res.data.code === 0) {
-          console.log(res.data)
-          setColumns(res.data.data)
+          let cs =res.data.data;
+          console.log("cs",cs);
+          cs= cs.map(c=>{
+            if(c["actions"])
+            {
+              c['key'] = 'option';
+              c['valueType'] = 'option';
+              c['fixed'] = 'right';
+              c['width'] = 10;
+              c['render'] = () => c["actions"].map(a=> <a key="link">{a}</a>);
+                ;
+            }
+            return c;
+          });
+          setColumns(cs)
         }
       });
   }, [tableName]);
@@ -80,15 +93,6 @@ export default function Dirt(props) {
   }
 
   const generateForm = () => {
-    // let grouped = columns
-    //   .filter(c => c.submitable)
-    //   .reduce((a, c) => {
-    //     if (!a[c.submitFormGroupId]) a[c.submitFormGroupId] = []
-    //     a[c.submitFormGroupId].push(c)
-    //     return a;
-    //   }, {})
-    // console.log("grouped", grouped)
-
     const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
     console.log(submitTypes)
     return <BetaSchemaForm
@@ -112,6 +116,7 @@ export default function Dirt(props) {
     </BetaSchemaForm>
   }
   return (<ProTable
+    scroll={{ x: 1300 }}
     columns={columns}
     actionRef={actionRef}
     cardBordered request={
