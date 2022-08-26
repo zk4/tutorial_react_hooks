@@ -55,7 +55,7 @@ export default function Dirt(props) {
     return true;
   }
   const generateForm = () => {
-    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType)
+    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType).sort(a=>a.index)
     return <BetaSchemaForm
       title="创建"
       trigger={
@@ -70,7 +70,7 @@ export default function Dirt(props) {
       modalProps={{onCancel: () => console.log('run'), }}
       submitTimeout={4000}
       rowProps={{gutter: [16, 16], }}
-      colProps={{span: 12, }}
+      colProps={{span: 24, }}
       grid={true}
       onFinish={v => onCreate(v)} >
 
@@ -122,7 +122,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      });
+      }).sort(a=>-a.index);
       return <BetaSchemaForm
         title={name}
         trigger={<a> {name} </a>}
@@ -141,7 +141,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      });
+      }).sort(a=>-a.index);
       return <BetaSchemaForm
         title={name}
         readonly={true}
@@ -163,7 +163,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      });
+      }).sort(a=>-a.index);
       return <Popconfirm title="确定删除?" onConfirm={async () => {
         console.log(headers, name, text, record, index)
         try {
