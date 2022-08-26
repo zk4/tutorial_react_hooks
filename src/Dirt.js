@@ -24,7 +24,7 @@ export default function Dirt(props) {
               c['key'] = 'option';
               c['valueType'] = 'option';
               c['fixed'] = 'right';
-              c['width'] = 10;
+              c['width'] = '20px';
               c['render'] = (text, record, index) => c["actions"].map(a => generateAction(cs, a, text, record, index));
             }
             return c;
@@ -55,7 +55,7 @@ export default function Dirt(props) {
     return true;
   }
   const generateForm = () => {
-    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType).sort(a=>a.index)
+    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType).sort(a => a.index)
     return <BetaSchemaForm
       title="创建"
       trigger={
@@ -89,8 +89,8 @@ export default function Dirt(props) {
     );
   };
 
-  Array.prototype.insertAt=function(index,obj){    
-    this.splice(index,0,obj);    
+  Array.prototype.insertAt = function (index, obj) {
+    this.splice(index, 0, obj);
   }
 
   const generateAction = (headers, name, text, record, index) => {
@@ -102,9 +102,9 @@ export default function Dirt(props) {
         //  取出 submitType
         .map(c => c.submitType)
         //   过滤掉 null
-        .filter(c=>c)
-        // 增加 id  显示
-      formData.insertAt(0,{
+        .filter(c => c)
+      // 增加 id  显示
+      formData.insertAt(0, {
         "width": "lg",
         "key": "id",
         "placeholder": "",
@@ -112,7 +112,7 @@ export default function Dirt(props) {
         "valueType": "digit",
         "title": "id",
         "tooltip": "id",
-        "readonly":true,
+        "readonly": true,
         "valueEnum": null,
         "colProps": {
           "md": 24
@@ -122,7 +122,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a=>-a.index);
+      }).sort(a => -a.index);
       return <BetaSchemaForm
         title={name}
         trigger={<a> {name} </a>}
@@ -141,7 +141,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a=>-a.index);
+      }).sort(a => -a.index);
       return <BetaSchemaForm
         title={name}
         readonly={true}
@@ -163,7 +163,7 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a=>-a.index);
+      }).sort(a => -a.index);
       return <Popconfirm title="确定删除?" onConfirm={async () => {
         console.log(headers, name, text, record, index)
         try {
@@ -205,15 +205,29 @@ export default function Dirt(props) {
         return value !== null && value.trim().length !== 0;
       })
       .map(([key, value]) => {
-        return key + "=="+encodeURIComponent("%"+value+"%");
+        return key + "==" + encodeURIComponent("%" + value + "%");
       })
       .join(";");
 
-
     // 只能用字符串拼，不然会转义
-    let myParams = `filter=${filters}`;
+    let filterParams = `&filter=${filters}`;
 
-    let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}&${myParams}`;
+
+    // 制作 JPA sort
+    console.log(sort)
+    let sortQuery = Object.entries(sort)
+      .map(v => {
+        let arrow = "desc"
+        if(v[1]==="ascend")
+          arrow = "asc"
+        return v[0] + "," + arrow
+      })
+      .join('&')
+    let sortParams = ""
+    if (sortQuery.length)
+      sortParams = `&sort=${sortQuery}`;
+
+    let url = `http://127.0.0.1:8081/getDatas?tableName=${tableName}${filterParams}${sortParams}`;
     return request(url, {
       params,
     });
