@@ -101,6 +101,8 @@ export default function Dirt(props) {
         .filter(c => c["actions"] == null)
         //  取出 submitType
         .map(c => c.submitType)
+        //   过滤掉 null
+        .filter(c=>c)
         // 增加 id  显示
       formData.insertAt(0,{
         "width": "lg",
