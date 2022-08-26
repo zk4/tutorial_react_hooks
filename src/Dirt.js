@@ -55,7 +55,7 @@ export default function Dirt(props) {
     return true;
   }
   const generateForm = () => {
-    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType).sort(a => a.index)
+    const submitTypes = columns.filter(c => c.submitType != null).map(c => c.submitType).sort((a, b) => a.index - b.index);
     return <BetaSchemaForm
       title="创建"
       trigger={
@@ -103,8 +103,11 @@ export default function Dirt(props) {
         .map(c => c.submitType)
         //   过滤掉 null
         .filter(c => c)
+        .sort((a, b) => a.index - b.index);
+      console.log("edit",formData)
       // 增加 id  显示
       formData.insertAt(0, {
+        "index":10000,
         "width": "lg",
         "key": "id",
         "placeholder": "",
@@ -122,7 +125,8 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a => -a.index);
+      })
+        .sort((a, b) => a.index - b.index);
       return <BetaSchemaForm
         title={name}
         trigger={<a> {name} </a>}
@@ -141,7 +145,8 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a => -a.index);
+      })
+        .sort((a, b) => a.index - b.index);
       return <BetaSchemaForm
         title={name}
         readonly={true}
@@ -163,7 +168,8 @@ export default function Dirt(props) {
       formData = formData.map(d => {
         d.initialValue = record[d.key];
         return d;
-      }).sort(a => -a.index);
+      })
+        .sort((a, b) => a.index - b.index);
       return <Popconfirm title="确定删除?" onConfirm={async () => {
         console.log(headers, name, text, record, index)
         try {
@@ -218,7 +224,7 @@ export default function Dirt(props) {
     let sortQuery = Object.entries(sort)
       .map(v => {
         let arrow = "desc"
-        if(v[1]==="ascend")
+        if (v[1] === "ascend")
           arrow = "asc"
         return v[0] + "," + arrow
       })
